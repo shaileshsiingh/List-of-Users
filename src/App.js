@@ -1,25 +1,45 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
+import Pagination from './components/Pagination';
+// import axios from 'axios';
 import './App.css';
+import Users from './components/Users';
 
-function App() {
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(1);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const res = await fetch("https://reqres.in/api/users?page=2");
+      const json = await res.json();
+    setUsers(json.data);
+      setLoading(false);
+    };
+
+    fetchUsers();
+  }, []);
+
+  // Get current posts
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Change page
+  const paginate = pageNumber => setCurrentPage(pageNumber);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='container mt-5'>
+      <h1 className='text-primary mb-3'>Hello Users</h1>
+      <Users users={currentUsers} loading={loading} />
+      <Pagination
+        usersPerPage={usersPerPage}
+        totalUsers={users.length}
+        paginate={paginate}
+      />
     </div>
   );
-}
+};
 
-export default App;
+export default App
